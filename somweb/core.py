@@ -34,10 +34,11 @@ class SomwebClient:
     __username = None
     __password = None
     __doors = None
+    __req = requests.Session()
 
     __door_status_types = {
-        "OK": DoorStatusType.Open,
-        "FAIL": DoorStatusType.Closed,
+        "OK": DoorStatusType.Closed,
+        "FAIL": DoorStatusType.Open,
     }
 
     def __init__(self, base_url, username, password):
@@ -55,7 +56,7 @@ class SomwebClient:
             "send-login": "Sign in",
         }
 
-        response = requests.post(self.__base_url + "/index.php", form_data)
+        response = self.__req.post(self.__base_url + "/index.php", form_data)
         if not response.ok:
             LOGGER.error("Authentication failed. Reason: %s", response.reason)
             return False
@@ -69,7 +70,7 @@ class SomwebClient:
         status = 1  # 1 = closed and 0 = open - SOMweb returns "OK" if sent status equals actual status or "FAIL" if status is the opposite
         bit = 0  # When set to 1 seems to define that 1 is to be returned if sent status matches actual status - if they don't match return is always FALSE
         url = f"/isg/statusDoor.php?numdoor={doorId}&status={status}&bit={bit}"
-        response = requests.get(self.__base_url + url)
+        response = self.__req.get(self.__base_url + url)
         if not response.ok:
             LOGGER.error("Failed getting door status. Reason: %s", response.reason)
             exception("Failed getting door status. Reason: %s", response.reason)
@@ -79,14 +80,14 @@ class SomwebClient:
     def getDoors(self):
         if not self.__doors:
             matches = RE_DOORS.finditer(self.__somWebPageContent)
-            self.__doors = map(lambda m: Door(m.group("id"), m.group("name")), matches)
+            self.__doors = list(map(lambda m: Door(m.group("id"), m.group("name")), matches))
 
-        return list(self.__doors)
+        return self.__doors
 
     def getAllDoorStatuses(self):
         doorIds = list(map(lambda d: d.id, self.getDoors()))
         url = f"/isg/statusDoorAll.php?webtoken={self.__currentToken}"
-        response = requests.get(self.__base_url + url)
+        response = self.__req.get(self.__base_url + url)
         data = json.loads(response.text)
         self.__currentToken = data["11"]
 
@@ -117,7 +118,7 @@ class SomwebClient:
 
     def toogleDoorPosition(self, doorId):
         url = f"/isg/opendoor.php?numdoor={doorId}&status=0&webtoken={self.__currentToken}"
-        response = requests.get(self.__base_url + url)
+        response = self.__req.get(self.__base_url + url)
         return response.ok and "OK" == response.text
 
     def __extractWebToken(self, html_content):
