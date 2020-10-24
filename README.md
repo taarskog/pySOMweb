@@ -1,6 +1,6 @@
 # SOMweb Client
 
-A client to control control garage door operators by [SOMMER](https://www.sommer.eu) through [SOMweb](https://www.sommer.eu/somweb.html).
+A client to control control garage door operators produced by [SOMMER](https://www.sommer.eu) through their [SOMweb](https://www.sommer.eu/somweb.html) device.
 
 > ⚠ It is not enough to have a [supported operator](https://www.sommer.eu/en/somweb.html#kompatibilitaet) to use this package. You also need the SOMWeb device.
 
