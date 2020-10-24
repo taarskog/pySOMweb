@@ -3,7 +3,7 @@ import requests
 import json
 from enum import Enum
 
-from .const import LOGGER, RE_WEBTOKEN, RE_DOORS
+from .const import LOGGER, RE_WEBTOKEN, RE_DOORS, SOMWEB_URI_TEMPLATE
 
 #
 # TODO: Requests should include timeouts and also handle excpetions gracefully - see https://requests.readthedocs.io/en/master/user/quickstart/#timeouts
@@ -41,11 +41,11 @@ class SomwebClient:
         "FAIL": DoorStatusType.Open,
     }
 
-    def __init__(self, base_url, username, password):
+    def __init__(self, somWebUDI, username, password):
         """
         Initialize SOMweb authenticator
         """
-        self.__base_url = base_url
+        self.__base_url = SOMWEB_URI_TEMPLATE.format(somWebUDI)
         self.__username = username
         self.__password = password
 
