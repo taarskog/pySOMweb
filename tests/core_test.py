@@ -2,6 +2,7 @@ from logging import error
 from somweb.core import DoorActionType, DoorStatus
 from typing import Type
 import unittest
+import requests
 import requests_mock
 from somweb import Door, DoorStatusType, SomwebClient as Client
 
@@ -10,6 +11,18 @@ class TestSomwebClient(unittest.TestCase):
     """
     Test all SOMweb integrations
     """
+
+    def test_isReachable_returns_true_if_responding_with_1(self, req):
+        req.get("https://12345678.somweb.world/blank.html", text = "1")
+        self.assertTrue(Client(12345678, "", "").isReachable())
+
+    def test_isReachable_returns_false_if_response_not_1(self, req):
+        req.get("https://12345678.somweb.world/blank.html", text = "0")
+        self.assertFalse(Client(12345678, "", "").isReachable())
+
+    def test_isReachable_returns_false_if_request_timeout(self, req):
+        req.get("https://12345678.somweb.world/blank.html", exc=requests.exceptions.ConnectTimeout())
+        self.assertFalse(Client(12345678, "", "").isReachable())
 
     def test_udi_prop_should_hold_cover_id(self, req):
         self.assertEqual(12345678, Client(12345678, "user", "password").udi)

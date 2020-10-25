@@ -17,6 +17,9 @@ password = "super_secret_password" # Your home automation user password
 
 client = SomwebClient(somwebUDI, username, password)
 
+# Check that SOMweb device is reachable
+client.isReachable()
+
 # Rembember to authenticate before calling any other operation
 client.authenticate()
 
