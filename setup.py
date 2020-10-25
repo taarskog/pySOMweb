@@ -9,7 +9,7 @@
 import io
 import os
 import sys
-from shutil import rmtree
+from shutil import Error, rmtree
 
 from setuptools import find_packages, setup, Command
 
@@ -60,8 +60,8 @@ if not VERSION:
     with open(os.path.join(here, project_slug, "__version__.py")) as f:
         exec(f.read(), about)
 else:
-    about["__version__"] = VERSION
-
+    #about["__version__"] = VERSION
+    raise Error("Required file missing. Package should have a __VERSION__ file!")
 
 class UploadCommand(Command):
     """Support setup.py upload."""
