@@ -1,3 +1,4 @@
+from logging import error
 from somweb.core import DoorActionType, DoorStatus
 from typing import Type
 import unittest
@@ -9,6 +10,17 @@ class TestSomwebClient(unittest.TestCase):
     """
     Test all SOMweb integrations
     """
+
+    def test_udi_prop_should_hold_cover_id(self, req):
+        self.assertEqual(12345678, Client(12345678, "user", "password").udi)
+
+    def test_udi_prop_should_not_be_settable(self, req):
+        with self.assertRaises(BaseException):
+            Client(12345678, "user", "password").udi = 87654321
+
+    def test_udi_prop_should_not_be_deletable(self, req):
+        with self.assertRaises(BaseException):
+            del Client(12345678, "user", "password").udi
 
     def test_authenticate_sets_web_token_on_success(self, req):
         expected = "55MyToken66"

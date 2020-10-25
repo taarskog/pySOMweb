@@ -46,8 +46,21 @@ class SomwebClient:
         Initialize SOMweb authenticator
         """
         self.__base_url = SOMWEB_URI_TEMPLATE.format(somWebUDI)
+        self.__udi = somWebUDI
         self.__username = username
         self.__password = password
+
+    @property
+    def udi(self):
+        return self.__udi
+
+    @udi.setter
+    def udi(self, value):
+        raise exception("UDI cannot be set")
+
+    @udi.deleter
+    def udi(self):
+        raise exception("UDI cannot be deleted")
 
     def authenticate(self):
         form_data = {
