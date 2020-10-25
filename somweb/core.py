@@ -6,7 +6,7 @@ from enum import Enum
 
 from requests.sessions import Session
 
-from .const import LOGGER, RE_WEBTOKEN, RE_DOORS, SOMWEB_URI_TEMPLATE
+from .const import LOGGER, REQUEST_TIMEOUT, RE_WEBTOKEN, RE_DOORS, SOMWEB_URI_TEMPLATE
 
 #
 # TODO: Requests should include timeouts and also handle excpetions gracefully - see https://requests.readthedocs.io/en/master/user/quickstart/#timeouts
@@ -69,7 +69,7 @@ class SomwebClient:
         """SOMweb device available and responding"""
         url = f"{self.__base_url}/blank.html"
         try:
-            response = self.__req.get(url)
+            response = self.__req.get(url, timeout = REQUEST_TIMEOUT)
             return response.ok and "1" == response.text
         except Exception as e:
                 LOGGER.error("Not reachable. Exception: %s", str(e))
@@ -84,7 +84,7 @@ class SomwebClient:
         }
 
         url = f"{self.__base_url}/index.php"
-        response = self.__req.post(url, form_data)
+        response = self.__req.post(url, form_data, None, timeout = REQUEST_TIMEOUT)
         if not response.ok:
             LOGGER.error("Authentication failed. Reason: %s", response.reason)
             return False
@@ -99,7 +99,7 @@ class SomwebClient:
         status = 1  # 1 = closed and 0 = open - SOMweb returns "OK" if sent status equals actual status or "FAIL" if status is the opposite
         bit = 0  # When set to 1 seems to define that 1 is to be returned if sent status matches actual status - if they don't match return is always FALSE
         url = f"{self.__base_url}/isg/statusDoor.php?numdoor={doorId}&status={status}&bit={bit}"
-        response = self.__req.get(url)
+        response = self.__req.get(url, timeout = REQUEST_TIMEOUT)
         if not response.ok:
             LOGGER.error("Failed getting door status. Reason: %s", response.reason)
             exception("Failed getting door status. Reason: %s", response.reason)
@@ -116,7 +116,7 @@ class SomwebClient:
     def getAllDoorStatuses(self) -> List[DoorStatus]:
         doorIds = list(map(lambda d: d.id, self.getDoors()))
         url = f"{self.__base_url}/isg/statusDoorAll.php?webtoken={self.__currentToken}"
-        response = self.__req.get(url)
+        response = self.__req.get(url, timeout = REQUEST_TIMEOUT)
         data = json.loads(response.text)
         self.__currentToken = data["11"]
 
@@ -147,7 +147,7 @@ class SomwebClient:
 
     def toogleDoorPosition(self, doorId: int) -> bool:
         url = f"{self.__base_url}/isg/opendoor.php?numdoor={doorId}&status=0&webtoken={self.__currentToken}"
-        response = self.__req.get(url)
+        response = self.__req.get(url, timeout = REQUEST_TIMEOUT)
         return response.ok and "OK" == response.text
 
     def __extractWebToken(self, html_content: str) -> str:
