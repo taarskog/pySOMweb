@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Inspired by https://github.com/navdeep-G/setup.py
+
 # Note: To use the 'upload' functionality of this file, you must:
 #   $ pipenv install twine --dev
 
@@ -10,8 +12,6 @@ import sys
 from shutil import rmtree
 
 from setuptools import find_packages, setup, Command
-
-here = os.path.abspath(os.path.dirname(__file__))
 
 # Package meta-data.
 NAME = "somweb"
@@ -23,8 +23,12 @@ REQUIRES_PYTHON = ">=3.6.0"
 VERSION = None  # Version taken from package
 
 # What packages are required for this module to be executed?
-with io.open(os.path.join(here, "requirements.txt"), encoding="utf-8") as f:
-    REQUIRED = f.readlines()
+# with io.open(os.path.join(here, "requirements.txt"), encoding="utf-8") as f:
+#     REQUIRED = f.readlines()
+
+REQUIRED = [
+    'requests',
+]
 
 # What packages are optional?
 EXTRAS = {
@@ -38,6 +42,8 @@ with open("LICENSE") as f:
 # ------------------------------------------------
 # Except, perhaps the License and Trove Classifiers!
 # If you do change the License, remember to change the Trove Classifier for that!
+
+here = os.path.abspath(os.path.dirname(__file__))
 
 # Import the README and use it as the long-description.
 # Note: this will only work if 'README.md' is present in your MANIFEST.in file!
