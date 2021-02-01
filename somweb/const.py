@@ -12,9 +12,14 @@ SOMWEB_ALL_DOORS_STATUS_URI = "/isg/statusDoorAll.php"
 SOMWEB_TOGGLE_DOOR_STATUS_URI = "/isg/opendoor.php"
 
 CHECK_DOOR_STATE_INTERVAL = 2
-REQUEST_TIMEOUT = 1.5
+REQUEST_TIMEOUT = 30
 
 DEFAULT_DOOR_STATE_CHANGE_TIMEOUT = 60
 
-RE_DOORS = re.compile(r'<\s*input\s+type\s*=\s*"submit"\s+class\s*=\s*"tab-door[\s\w-]*"\s+name\s*=\s*"tab-door\d+"\s+id\s*=\s*"tab-door(?P<id>\d+)"\s+value="(?P<name>[\w\s]+)"\s*\/?>', re.MULTILINE)
-RE_WEBTOKEN = re.compile(r'<\s*input\s+id\s*=\s*"webtoken".*value="(?P<webtoken>\w+)"\/>', re.MULTILINE)
+RE_DOORS = re.compile(
+    r'<\s*input\s+type\s*=\s*"submit"\s+class\s*=\s*"tab-door[\s\w-]*"\s+name\s*=\s*"tab-door\d+"\s+id\s*=\s*"tab-door(?P<id>\d+)"\s+value="(?P<name>[\w\s]+)"\s*\/?>',
+    re.MULTILINE,
+)
+RE_WEBTOKEN = re.compile(
+    r'<\s*input\s+id\s*=\s*"webtoken".*value="(?P<webtoken>\w+)"\/>', re.MULTILINE
+)
