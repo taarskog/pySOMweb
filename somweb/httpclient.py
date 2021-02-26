@@ -11,13 +11,23 @@ from .const import LOGGER, REQUEST_TIMEOUT, SOMWEB_URI_TEMPLATE
 class HttpClient:
     __base_url: Tuple[str]
     __session: ClientSession = None
+    __privateSession: bool = False
 
-    def __init__(self, somWebUDI: int, loop: AbstractEventLoop = None):
+    def __init__(
+        self,
+        somWebUDI: int,
+        session: ClientSession = None,
+        loop: AbstractEventLoop = None,
+    ):
         """
         Initialize SOMweb authenticator
         """
         self.__base_url = (SOMWEB_URI_TEMPLATE.format(somWebUDI),)
-        self.__session = aiohttp.ClientSession()
+        if session is None:
+            self.__session = aiohttp.ClientSession()
+            self.__privateSession = True
+        else:
+            self.__session = session
 
         self.loop = get_event_loop() if loop is None else loop
 
@@ -25,8 +35,9 @@ class HttpClient:
         return self
 
     async def __aexit__(self, *excinfo):
-        LOGGER.info("Closing http session")
-        await self.close()
+        if self.__privateSession:
+            LOGGER.info("Closing my http session")
+            await self.close()
 
     async def close(self) -> None:
         """Close underlying session.
@@ -54,7 +65,7 @@ class HttpClient:
                 await response.text()
                 return response
         except Exception as e:
-            LOGGER.exception("Not reachable %s", url)
+            LOGGER.exception("Not reachable %s", url, exc_info=e)
             raise
 
     async def post(self, relativeUrl: str, form_data: Any = None) -> ClientResponse:
@@ -68,5 +79,5 @@ class HttpClient:
                 await response.text()
                 return response
         except Exception as e:
-            LOGGER.exception("POST to '%s' failed", url)
+            LOGGER.exception("POST to '%s' failed", url, exc_info=e)
             raise

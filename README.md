@@ -38,3 +38,8 @@ result = client.closeDoor(2)
 # Toggle door position (close an open door or open a closed door)
 result = client.toogleDoorPosition(2)
 ```
+
+## Build
+
+python3.8 setup.py bdist_wheel sdist
+python3.8 setup.py upload

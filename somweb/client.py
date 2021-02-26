@@ -2,6 +2,7 @@ import asyncio
 from logging import exception, warning
 from .httpclient import HttpClient
 from typing import List  # , Tuple
+from aiohttp.client import ClientSession
 
 # import json
 
@@ -37,13 +38,19 @@ class SomwebClient:
         "FAIL": DoorStatusType.Open,
     }
 
-    def __init__(self, somweb_udi: int, username: str, password: str):
+    def __init__(
+        self,
+        somweb_udi: int,
+        username: str,
+        password: str,
+        session: ClientSession = None,
+    ):
         """
         Initialize SOMweb authenticator
         """
         self.__udi = somweb_udi
         self.__credentials = Credentials(username, password)
-        self.__http_client = HttpClient(somweb_udi)
+        self.__http_client = HttpClient(somweb_udi, session)
 
     async def __aenter__(self):
         return self
@@ -83,7 +90,7 @@ class SomwebClient:
             response = await self.__http_client.get(SOMWEB_ALIVE_URI)
             return response.ok and "1" == await response.text()
         except Exception as e:
-            LOGGER.exception("SomWeb not reachable.")
+            LOGGER.exception("SomWeb not reachable.", exc_info=e)
             return False
 
     async def authenticate(self) -> AuthResponse:
@@ -104,7 +111,7 @@ class SomwebClient:
             current_token = self.__extract_web_token(somweb_page_content)
             return AuthResponse(True, current_token, somweb_page_content)
         except Exception as e:
-            LOGGER.exception("Authentication failed")
+            LOGGER.exception("Authentication failed", exc_info=e)
             return AuthResponse()
 
     async def get_door_status(self, door_id: int) -> DoorStatusType:
