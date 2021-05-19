@@ -68,7 +68,7 @@ async def execute(args: argparse.Namespace):
             return await client.toogle_door_position(auth.token, door_id)
         else:
             return "Authentication failed"
-        
+
     async with SomwebClient(args.udi, args.username, args.password) as client:
         func = action_to_func(args.action)
         print(await func(client, args.door_id))
@@ -103,7 +103,7 @@ parser.add_argument('--udi',      dest='udi',      required=True,  type=str, hel
 parser.add_argument('--username', dest='username', required=True,  type=str, help='SOMweb username')
 parser.add_argument('--password', dest='password', required=True,  type=str, help='SOMweb password')
 parser.add_argument('--action',   dest='action',   required=True,  choices=['alive', 'auth', 'get_all', 'status', 'open', 'close', 'toggle'], help='SOMweb password')
-parser.add_argument('--door',     dest='door_id',  required=False, type=int, help='Id of door to perform actions: "status", "open", "close" or "toggle" on')
+parser.add_argument('--door',     dest='door_id',  required=False, type=int, help='Id of door to perform the following actions on: "status", "open", "close" or "toggle"')
 args = parser.parse_args()
 
 start = time.time()
