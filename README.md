@@ -66,7 +66,7 @@ Get status of door with id 2
 
 ```sh
 $ python main.py --udi ******** --username ******** --password ******** --action status --door 2
-DoorStatusType.Closed
+DoorStatusType.CLOSED
 Operation took 1 seconds
 ```
 
@@ -190,7 +190,7 @@ Sample usage:
 door_id = 2
 auth = await client.authenticate()
 await client.open_door(door_id):
-await client.wait_for_door_state(door_id, DoorStatusType.Open)
+await client.wait_for_door_state(door_id, DoorStatusType.OPEN)
 ```
 
 ## Build

@@ -1,3 +1,4 @@
+""" SOMweb Client """
 from asyncio import AbstractEventLoop, get_event_loop
 from typing import Any, Tuple
 import aiohttp
@@ -7,25 +8,25 @@ from aiohttp.client_reqrep import ClientResponse
 
 from .const import LOGGER, REQUEST_TIMEOUT, SOMWEB_URI_TEMPLATE
 
-
 class HttpClient:
+    """ HttpClient for the SOMweb lib."""
     __base_url: Tuple[str]
     __session: ClientSession = None
-    __privateSession: bool = False
+    __private_session: bool = False
 
     def __init__(
         self,
-        somWebUDI: int,
+        somweb_udi: int,
         session: ClientSession = None,
         loop: AbstractEventLoop = None,
     ):
         """
         Initialize SOMweb authenticator
         """
-        self.__base_url = (SOMWEB_URI_TEMPLATE.format(somWebUDI),)
+        self.__base_url = (SOMWEB_URI_TEMPLATE.format(somweb_udi),)
         if session is None:
             self.__session = aiohttp.ClientSession()
-            self.__privateSession = True
+            self.__private_session = True
         else:
             self.__session = session
 
@@ -35,7 +36,7 @@ class HttpClient:
         return self
 
     async def __aexit__(self, *excinfo):
-        if self.__privateSession:
+        if self.__private_session:
             LOGGER.info("Closing my http session")
             await self.close()
 
@@ -56,21 +57,21 @@ class HttpClient:
         """
         return self.__session is None or self.__session.closed
 
-    async def get(self, relativeUrl: str) -> ClientResponse:
+    async def get(self, relative_url: str) -> ClientResponse:
         """SOMweb device available and responding"""
-        url = f"{self.__base_url[0]}{relativeUrl}"
+        url = f"{self.__base_url[0]}{relative_url}"
         try:
             async with self.__session.get(url, timeout=REQUEST_TIMEOUT) as response:
                 assert response.ok
                 await response.text()
                 return response
-        except Exception as e:
-            LOGGER.exception("Not reachable %s", url, exc_info=e)
+        except Exception as ex:
+            LOGGER.exception("Not reachable %s", url, exc_info=ex)
             raise
 
-    async def post(self, relativeUrl: str, form_data: Any = None) -> ClientResponse:
+    async def post(self, relative_url: str, form_data: Any = None) -> ClientResponse:
         """SOMweb device available and responding"""
-        url = f"{self.__base_url[0]}{relativeUrl}"
+        url = f"{self.__base_url[0]}{relative_url}"
         try:
             async with self.__session.post(
                 url, data=form_data, timeout=REQUEST_TIMEOUT
@@ -78,6 +79,6 @@ class HttpClient:
                 assert response.ok
                 await response.text()
                 return response
-        except Exception as e:
-            LOGGER.exception("POST to '%s' failed", url, exc_info=e)
+        except Exception as ex:
+            LOGGER.exception("POST to '%s' failed", url, exc_info=ex)
             raise

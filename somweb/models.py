@@ -1,25 +1,31 @@
+""" Models for SOMweb Client """
 from enum import Enum
 from typing import NamedTuple
 
 class Credentials(NamedTuple):
+    """ SOMweb device credentials """
     username: str
     password: str
 
 class AuthResponse(NamedTuple):
+    """ Result from an authentication request """
     success: bool = False
     token: str = None
     page_content: str = None
 
 class DoorStatusType(Enum):
-    Open = 1
-    Closed = 2
-    Unknown = 3
+    """ Door status type """
+    OPEN = 1
+    CLOSED = 2
+    UNKNOWN = 3
 
 class DoorActionType(Enum):
-    Close = 0
-    Open = 1
+    """ Door action type """
+    CLOSE = 0
+    OPEN = 1
 
 class Door(NamedTuple):
+    """ Door information """
     id: str
     name: str
 
