@@ -159,19 +159,19 @@ status: DoorStatusType = await client.get_door_status(2)
 Open a closed door and close an open door.
 
 ```py
-success: bool = await client.toogle_door_position(auth.token, door_id)
+success: bool = await client.toogle_door_position(door_id)
 ```
 
 ### Open Door
 
 ```py
-success: bool = await client.open_door(auth.token, door_id)
+success: bool = await client.open_door(door_id)
 ```
 
 ### Close Door
 
 ```py
-success: bool = await client.close_door(auth.token, door_id)
+success: bool = await client.close_door(door_id)
 ```
 
 ### Await Door Status
@@ -189,7 +189,7 @@ Sample usage:
 ```py
 door_id = 2
 auth = await client.authenticate()
-await client.open_door(auth.token, door_id):
+await client.open_door(door_id):
 await client.wait_for_door_state(door_id, DoorStatusType.Open)
 ```
 

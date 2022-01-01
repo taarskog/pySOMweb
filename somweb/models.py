@@ -23,7 +23,7 @@ class Door(NamedTuple):
     id: str
     name: str
 
-class DoorStatus:
-    def __init__(self, id: int, status: DoorStatusType):
-        self.id = id
-        self.status = status
+# class DoorStatus:
+#     def __init__(self, id: int, status: DoorStatusType):
+#         self.id = id
+#         self.status = status

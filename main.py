@@ -3,6 +3,8 @@ import argparse
 from somweb.models import DoorStatusType
 from somweb import SomwebClient
 import time
+import locale
+locale.setlocale(locale.LC_ALL, '')
 
 async def execute(args: argparse.Namespace):
     def action_to_func(action_name: str):
@@ -43,7 +45,7 @@ async def execute(args: argparse.Namespace):
         assert(door_id != None)
         auth = await client.authenticate()
         if auth.success:
-            if not await client.open_door(auth.token, door_id):
+            if not await client.open_door(door_id):
                 return False
             else:
                 return await client.wait_for_door_state(door_id, DoorStatusType.Open)
@@ -54,7 +56,7 @@ async def execute(args: argparse.Namespace):
         assert(door_id != None)
         auth = await client.authenticate()
         if auth.success:
-            if not await client.close_door(auth.token, door_id):
+            if not await client.close_door(door_id):
                 return False
             else:
                 return await client.wait_for_door_state(door_id, DoorStatusType.Closed)
@@ -65,7 +67,7 @@ async def execute(args: argparse.Namespace):
         assert(door_id != None)
         auth = await client.authenticate()
         if auth.success:
-            return await client.toogle_door_position(auth.token, door_id)
+            return await client.toogle_door_position(door_id)
         else:
             return "Authentication failed"
 
@@ -106,9 +108,10 @@ parser.add_argument('--action',   dest='action',   required=True,  choices=['ali
 parser.add_argument('--door',     dest='door_id',  required=False, type=int, help='Id of door to perform the following actions on: "status", "open", "close" or "toggle"')
 args = parser.parse_args()
 
-start = time.time()
-asyncio.get_event_loop().run_until_complete(execute(args))
-end = time.time()
+loop = asyncio.new_event_loop()
+start = time.perf_counter_ns()
+loop.run_until_complete(execute(args))
+end = time.perf_counter_ns()
 
-duration = int(end - start)
-print(f"Operation took {duration} seconds")
+duration_ms = round((end - start)/1000000)
+print(f"Operation took {duration_ms:,} ms (this includes time spent on logging in")
