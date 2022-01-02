@@ -143,7 +143,7 @@ else
 ### Get Doors
 
 ```py
-doors: List[Door] = client.get_doors_from_page_content(auth.page_content)
+doors: List[Door] = client.get_doors()
 ```
 
 ### Door Status
