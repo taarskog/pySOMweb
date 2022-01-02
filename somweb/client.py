@@ -11,8 +11,6 @@ from typing import List  # , Tuple
 from aiohttp.client import ClientSession
 from .httpclient import HttpClient
 
-# import json
-
 from .const import (
     CHECK_DOOR_STATE_INTERVAL,
     DEFAULT_DOOR_STATE_CHANGE_TIMEOUT,
@@ -32,15 +30,17 @@ from .models import (
     DoorStatusType,
 )
 
+
 class SomwebClient:
     """
     Client for performing operation on SOMMER garage doors, barriers, etc.
     connected to a Somweb device.
     """
+
     __udi: int
     __credentials: Credentials
     __http_client: HttpClient
-    __current_token: str|None
+    __current_token: str
 
     __door_status_types = {
         "OK": DoorStatusType.CLOSED,
@@ -131,7 +131,7 @@ class SomwebClient:
             return False
 
     async def authenticate(self) -> AuthResponse:
-        """"Authenticate or re-authenticate
+        """Authenticate or re-authenticate
 
         Called for initial authentication and to re-authenticate if token has expired.
         It is a good idea to call autjenticate and retry if an operation fails.
@@ -154,8 +154,11 @@ class SomwebClient:
                 return AuthResponse()
 
             somweb_page_content = await response.text()
-            __current_token = self.__extract_web_token(somweb_page_content)
-            return AuthResponse(True, __current_token, somweb_page_content)
+            self.__current_token = self.__extract_web_token(somweb_page_content)
+            if self.__current_token is None:
+                return AuthResponse(False, None, somweb_page_content)
+
+            return AuthResponse(True, self.__current_token, somweb_page_content)
         # pylint: disable=broad-except
         except Exception as ex:
             LOGGER.exception("Authentication failed", exc_info=ex)
@@ -177,10 +180,12 @@ class SomwebClient:
         -------
         DoorStatusType: Door status
         """
-        status = 1  # 1 = closed and 0 = open - SOMweb returns "OK" if sent status equals
-                    # actual status or "FAIL" if status is the opposite
-        bit = 0     # When set to 1 seems to define that 1 is to be returned if sent status
-                    # matches actual status - if they don't match return is always FALSE
+        status = (
+            1  # 1 = closed and 0 = open - SOMweb returns "OK" if sent status equals
+        )
+        # actual status or "FAIL" if status is the opposite
+        bit = 0  # When set to 1 seems to define that 1 is to be returned if sent status
+        # matches actual status - if they don't match return is always FALSE
         url = f"{SOMWEB_DOOR_STATUS_URI}?numdoor={door_id}&status={status}&bit={bit}"
 
         response = await self.__http_client.get(url)
@@ -193,7 +198,7 @@ class SomwebClient:
         )
 
     def get_doors_from_page_content(self, page_content: str) -> List[Door]:
-        """ Get list of available doors
+        """Get list of available doors
 
         Returns a list of available doors form the parsed SOMweb page
 
@@ -207,7 +212,7 @@ class SomwebClient:
         list[Door]: List of doors connected to the SOMweb device
         """
         matches = RE_DOORS.finditer(page_content)
-        doors = list(map(lambda m: Door(m.group("id"), m.group("name")), matches))
+        doors = list(map(lambda m: Door(int(m.group("id")), m.group("name")), matches))
         return doors
 
     async def wait_for_door_state(
@@ -216,7 +221,7 @@ class SomwebClient:
         state: DoorStatusType,
         timeout_in_seconds: float = DEFAULT_DOOR_STATE_CHANGE_TIMEOUT,
     ) -> bool:
-        """ Wait for a door to reach the requested state
+        """Wait for a door to reach the requested state
 
         Call this after performing a door action to wait for the operation to complete or
         until maximum wait time has been reached.
@@ -237,6 +242,7 @@ class SomwebClient:
         -------
         bool: True when door has reached the expected state, or False if timeout occurred
         """
+
         async def wait_for_state_loop(door_id: int, state: DoorStatusType) -> None:
             while DoorStatusType(state) != DoorStatusType(
                 await self.get_door_status(door_id)
@@ -252,8 +258,8 @@ class SomwebClient:
             LOGGER.warning("Timeout waiting for door state")
             return False
 
-    async def open_door(self, door_id: int, token: str|None = None) -> bool:
-        """ Open door
+    async def open_door(self, door_id: int, token: str = None) -> bool:
+        """Open door
 
         Open a door. No action is taken if the door is already open.
 
@@ -272,8 +278,8 @@ class SomwebClient:
         """
         return await self.door_action(door_id, DoorActionType.OPEN, token)
 
-    async def close_door(self, door_id: int, token: str|None = None) -> bool:
-        """ Close door
+    async def close_door(self, door_id: int, token: str = None) -> bool:
+        """Close door
 
         Close a door. No action is taken if the door is already closed.
 
@@ -293,11 +299,9 @@ class SomwebClient:
         return await self.door_action(door_id, DoorActionType.CLOSE, token)
 
     async def door_action(
-        self, door_id: int,
-        door_action: DoorActionType,
-        token: str|None = None
+        self, door_id: int, door_action: DoorActionType, token: str = None
     ) -> bool:
-        """ Perform an action on a door
+        """Perform an action on a door
 
         Open or close a door. No action is taken if the door is already in the requested postion.
 
@@ -326,8 +330,8 @@ class SomwebClient:
             door_id
         ) == requested_door_status or await self.toogle_door_position(door_id, token)
 
-    async def toogle_door_position(self, door_id: int, token: str|None = None) -> bool:
-        """ Toggles a door postion
+    async def toogle_door_position(self, door_id: int, token: str = None) -> bool:
+        """Toggles a door postion
 
         Open a closed door or vice versa. If token is not provided, then the internally tracked
         token is used (this is the normal operation and this property may be deprecated and
@@ -347,6 +351,7 @@ class SomwebClient:
         has completed, just that the operation has been accpeted by the SOMweb device
         """
         web_token = token if token is not None else self.__current_token
+        LOGGER.debug("Using %s token", "provided" if token is not None else "internal")
         url = f"{SOMWEB_TOGGLE_DOOR_STATUS_URI}?numdoor={door_id}&status=0&webtoken={web_token}"
         response = await self.__http_client.get(url)
         return response.ok and "OK" == await response.text()

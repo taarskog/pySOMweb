@@ -6,24 +6,26 @@ import locale
 from somweb.models import DoorStatusType
 from somweb import SomwebClient
 
-locale.setlocale(locale.LC_ALL, '')
+locale.setlocale(locale.LC_ALL, "")
+
 
 async def execute(args: argparse.Namespace):
-    """ Execute command line operation """
+    """Execute command line operation"""
+
     def action_to_func(action_name: str):
         switcher = {
-            'alive': check_alive,
-            'auth': authenticate,
-            'get_all': get_all,
-            'status': door_status,
-            'open': door_open,
-            'close': door_close,
-            'toggle': door_toggle,
+            "alive": check_alive,
+            "auth": authenticate,
+            "get_all": get_all,
+            "status": door_status,
+            "open": door_open,
+            "close": door_close,
+            "toggle": door_toggle,
         }
 
         return switcher.get(action_name, check_alive)
 
-# pylint: disable=unused-argument
+    # pylint: disable=unused-argument
     async def check_alive(client: SomwebClient, door_id: int = None):
         return await client.is_alive()
 
@@ -78,47 +80,39 @@ async def execute(args: argparse.Namespace):
     async with SomwebClient(args.udi, args.username, args.password) as client:
         func = action_to_func(args.action)
         print(await func(client, args.door_id))
+
+
 # pylint: enable=unused-argument
 
-# async def run(args: argparse.Namespace):
-#     async with SomwebClient(args.udi, args.username, args.password) as client:
-#         auth_response = await client.authenticate()
-#         print(f"Auth success? {auth_response.success}")
-
-#         if auth_response.success:
-#             doors = client.get_doors_from_page_content(auth_response.page_content)
-#             for door in doors:
-#                 print(f"{door} is {DoorStatusType(await client.get_door_status(door.id)).name}")
-
-#             if len(doors) > 0:
-#                 door_id = doors[0].id
-#                 print(f"Opening door")
-#                 if await client.open_door(auth_response.token, door_id):
-#                     print(f"Await door open")
-#                     if await client.wait_for_door_state(door_id, DoorStatusType.Open):
-#                         print("Door open. Now closing")
-#                         if (await client.close_door(auth_response.token, door_id)):
-#                             if (await client.wait_for_door_state(door_id, DoorStatusType.Closed)):
-#                                 print("Door closed")
-#                             else:
-#                                 print("Door did not close!")
-#                     else:
-#                         print("Door did not open!")
-
 # pylint: disable=line-too-long
-parser = argparse.ArgumentParser(description='SOMweb Client.')
-parser.add_argument('--udi',      dest='udi',      required=True,  type=str, help='SOMweb UID')
-parser.add_argument('--username', dest='username', required=True,  type=str, help='SOMweb username')
-parser.add_argument('--password', dest='password', required=True,  type=str, help='SOMweb password')
-parser.add_argument('--action',   dest='action',   required=True,  choices=['alive', 'auth', 'get_all', 'status', 'open', 'close', 'toggle'], help='SOMweb password')
-parser.add_argument('--door',     dest='door_id',  required=False, type=int, help='Id of door to perform the following actions on: "status", "open", "close" or "toggle"')
-args = parser.parse_args()
+parser = argparse.ArgumentParser(description="SOMweb Client.")
+parser.add_argument("--udi", dest="udi", required=True, type=str, help="SOMweb UID")
+parser.add_argument(
+    "--username", dest="username", required=True, type=str, help="SOMweb username"
+)
+parser.add_argument(
+    "--password", dest="password", required=True, type=str, help="SOMweb password"
+)
+parser.add_argument(
+    "--action",
+    dest="action",
+    required=True,
+    choices=["alive", "auth", "get_all", "status", "open", "close", "toggle"],
+    help="SOMweb password",
+)
+parser.add_argument(
+    "--door",
+    dest="door_id",
+    required=False,
+    type=int,
+    help='Id of door to perform the following actions on: "status", "open", "close" or "toggle"',
+)
 # pylint: enable=line-too-long
 
 loop = asyncio.new_event_loop()
 start = time.perf_counter_ns()
-loop.run_until_complete(execute(args))
+loop.run_until_complete(execute(parser.parse_args()))
 end = time.perf_counter_ns()
 
-duration_ms = round((end - start)/1000000)
+duration_ms = round((end - start) / 1000000)
 print(f"Operation took {duration_ms:,} ms (this includes time spent on logging in")
