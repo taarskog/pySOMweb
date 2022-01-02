@@ -195,5 +195,7 @@ await client.wait_for_door_state(door_id, DoorStatusType.OPEN)
 
 ## Build
 
-python3.8 setup.py bdist_wheel sdist
-python3.8 setup.py upload
+python setup.py bdist_wheel sdist
+
+pipenv shell
+python setup.py upload
