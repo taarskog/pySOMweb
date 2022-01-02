@@ -41,6 +41,7 @@ class SomwebClient:
     __credentials: Credentials
     __http_client: HttpClient
     __current_token: str
+    __current_page_content: str
 
     __door_status_types = {
         "OK": DoorStatusType.CLOSED,
@@ -153,12 +154,12 @@ class SomwebClient:
                 LOGGER.error("Authentication failed. Reason: %s", response.reason)
                 return AuthResponse()
 
-            somweb_page_content = await response.text()
-            self.__current_token = self.__extract_web_token(somweb_page_content)
+            self.__current_page_content = await response.text()
+            self.__current_token = self.__extract_web_token(self.__current_page_content)
             if self.__current_token is None:
-                return AuthResponse(False, None, somweb_page_content)
+                return AuthResponse(False, None, self.__current_page_content)
 
-            return AuthResponse(True, self.__current_token, somweb_page_content)
+            return AuthResponse(True, self.__current_token, self.__current_page_content)
         # pylint: disable=broad-except
         except Exception as ex:
             LOGGER.exception("Authentication failed", exc_info=ex)
@@ -197,10 +198,21 @@ class SomwebClient:
             await response.text(), DoorStatusType.UNKNOWN
         )
 
+    def get_doors(self) -> List[Door]:
+        """Get list of available doors
+
+        Uses page content from last authentication to parse out a list of doors
+
+        Returns
+        -------
+        List[Door]: List of doors connected to the SOMweb device
+        """
+        return self.get_doors_from_page_content(self.__current_page_content)
+
     def get_doors_from_page_content(self, page_content: str) -> List[Door]:
         """Get list of available doors
 
-        Returns a list of available doors form the parsed SOMweb page
+        Returns a list of available doors from the parsed SOMweb page
 
         Parameters
         ----------
@@ -209,7 +221,7 @@ class SomwebClient:
 
         Returns
         -------
-        list[Door]: List of doors connected to the SOMweb device
+        List[Door]: List of doors connected to the SOMweb device
         """
         matches = RE_DOORS.finditer(page_content)
         doors = list(map(lambda m: Door(int(m.group("id")), m.group("name")), matches))
