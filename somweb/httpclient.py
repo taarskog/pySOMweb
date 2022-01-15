@@ -62,7 +62,7 @@ class HttpClient:
         url = f"{self.__base_url[0]}{relative_url}"
         try:
             async with self.__session.get(url, timeout=REQUEST_TIMEOUT) as response:
-                assert response.ok
+                assert 400 > response.status  # response.ok
                 await response.text()
                 return response
         except Exception as ex:
@@ -76,7 +76,7 @@ class HttpClient:
             async with self.__session.post(
                 url, data=form_data, timeout=REQUEST_TIMEOUT
             ) as response:
-                assert response.ok
+                assert 400 > response.status  # response.ok
                 await response.text()
                 return response
         except Exception as ex:
