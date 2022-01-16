@@ -125,7 +125,7 @@ class SomwebClient:
         """
         try:
             response = await self.__http_client.get(SOMWEB_ALIVE_URI)
-            return response.ok and "1" == await response.text()
+            return 400 > response.status and "1" == await response.text()
         # pylint: disable=broad-except
         except Exception as ex:
             LOGGER.exception("SomWeb not reachable.", exc_info=ex)
@@ -150,7 +150,7 @@ class SomwebClient:
 
         try:
             response = await self.__http_client.post(SOMWEB_AUTH_URI, form_data)
-            if not response.ok:
+            if not 400 > response.status:
                 LOGGER.error("Authentication failed. Reason: %s", response.reason)
                 return AuthResponse()
 
@@ -190,7 +190,7 @@ class SomwebClient:
         url = f"{SOMWEB_DOOR_STATUS_URI}?numdoor={door_id}&status={status}&bit={bit}"
 
         response = await self.__http_client.get(url)
-        if not response.ok:
+        if not 400 > response.status:
             LOGGER.error("Failed getting door status. Reason: %s", response.reason)
             exception("Failed getting door status. Reason: %s", response.reason)
 
@@ -366,7 +366,7 @@ class SomwebClient:
         LOGGER.debug("Using %s token", "provided" if token is not None else "internal")
         url = f"{SOMWEB_TOGGLE_DOOR_STATUS_URI}?numdoor={door_id}&status=0&webtoken={web_token}"
         response = await self.__http_client.get(url)
-        return response.ok and "OK" == await response.text()
+        return 400 > response.status and "OK" == await response.text()
 
     def __extract_web_token(self, html_content: str) -> str:
         """Parse web token from SOMweb HTML"""
