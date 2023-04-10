@@ -46,7 +46,8 @@ class HttpClient:
         Release all acquired resources.
         """
         if not self.closed:
-            await self.__session.close()
+            if self.__private_session:
+                await self.__session.close()
             self.__session = None
 
     @property
