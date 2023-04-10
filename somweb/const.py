@@ -22,5 +22,5 @@ RE_DOORS = re.compile(
     re.MULTILINE,
 )
 RE_WEBTOKEN = re.compile(
-    r'<\s*input\s+id\s*=\s*"webtoken".*value="(?P<webtoken>\w+)"\/>', re.MULTILINE
+    r'<\s*input\s+id\s*=\s*"webtoken".*value="(?P<webtoken>\w+)".*\/>', re.MULTILINE
 )
