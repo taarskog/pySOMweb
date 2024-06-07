@@ -17,10 +17,12 @@ from .const import (
     LOGGER,
     RE_WEBTOKEN,
     RE_DOORS,
+    RE_UDI,
     SOMWEB_ALIVE_URI,
     SOMWEB_AUTH_URI,
     SOMWEB_DOOR_STATUS_URI,
     SOMWEB_TOGGLE_DOOR_STATUS_URI,
+    SOMWEB_URI_TEMPLATE,
 )
 from .models import (
     AuthResponse,
@@ -30,14 +32,12 @@ from .models import (
     DoorStatusType,
 )
 
-
 class SomwebClient:
     """
     Client for performing operation on SOMMER garage doors, barriers, etc.
     connected to a Somweb device.
     """
 
-    __udi: int
     __credentials: Credentials
     __http_client: HttpClient
     __current_token: str
@@ -50,6 +50,34 @@ class SomwebClient:
 
     def __init__(
         self,
+        url: str,
+        username: str,
+        password: str,
+        session: ClientSession = None,
+    ):
+        """
+        Parameters
+        ----------
+        somweb_url: str, required
+            Url to SOMweb. Can be either the local url to the SomWeb device or the cloud url. Calling createUsingUdi is recommended when accessing device through the cloud service.
+
+        username: str, required
+            Username
+
+        password: str, required
+            Password
+
+        session: ClientSession, optional
+            The connection pool to use. A new is created if none is provided
+        """
+        self.__credentials = Credentials(username, password)
+        self.__http_client = HttpClient(url, session)
+
+        self.__current_token = None
+
+    @classmethod
+    def createUsingUdi(
+        cls,
         somweb_udi: int,
         username: str,
         password: str,
@@ -71,11 +99,7 @@ class SomwebClient:
         session: ClientSession, optional
             The connection pool to use. A new is created if none is provided
         """
-        self.__udi = somweb_udi
-        self.__credentials = Credentials(username, password)
-        self.__http_client = HttpClient(somweb_udi, session)
-
-        self.__current_token = None
+        return cls(SOMWEB_URI_TEMPLATE.format(somweb_udi), username, password, session)
 
     async def __aenter__(self):
         return self
@@ -111,7 +135,11 @@ class SomwebClient:
 
         A readonly property.
         """
-        return self.__udi
+        if self.__current_page_content is None:
+            return None
+        else:
+            match = RE_UDI.search(self.__current_page_content)
+            return None if match is None else match.group("udi")
 
     async def is_alive(self) -> bool:
         """SOMweb device available and responding
@@ -158,7 +186,7 @@ class SomwebClient:
             self.__current_token = self.__extract_web_token(self.__current_page_content)
             if self.__current_token is None:
                 return AuthResponse(False, None, self.__current_page_content)
-
+            
             return AuthResponse(True, self.__current_token, self.__current_page_content)
         # pylint: disable=broad-except
         except Exception as ex:
@@ -194,8 +222,10 @@ class SomwebClient:
             LOGGER.error("Failed getting door status. Reason: %s", response.reason)
             exception("Failed getting door status. Reason: %s", response.reason)
 
+        resp_content = await response.text()
+
         return self.__door_status_types.get(
-            await response.text(), DoorStatusType.UNKNOWN
+            resp_content, DoorStatusType.UNKNOWN
         )
 
     def get_doors(self) -> List[Door]:

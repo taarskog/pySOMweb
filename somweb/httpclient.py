@@ -6,7 +6,7 @@ import aiohttp
 from aiohttp.client import ClientSession
 from aiohttp.client_reqrep import ClientResponse
 
-from .const import LOGGER, REQUEST_TIMEOUT, SOMWEB_URI_TEMPLATE
+from .const import LOGGER, REQUEST_TIMEOUT
 
 class HttpClient:
     """ HttpClient for the SOMweb lib."""
@@ -16,14 +16,14 @@ class HttpClient:
 
     def __init__(
         self,
-        somweb_udi: int,
+        somweb_url: str,
         session: ClientSession = None,
         loop: AbstractEventLoop = None,
     ):
         """
         Initialize SOMweb authenticator
         """
-        self.__base_url = (SOMWEB_URI_TEMPLATE.format(somweb_udi),)
+        self.__base_url = (somweb_url,)
         if session is None:
             self.__session = aiohttp.ClientSession()
             self.__private_session = True
@@ -61,8 +61,14 @@ class HttpClient:
     async def get(self, relative_url: str) -> ClientResponse:
         """SOMweb device available and responding"""
         url = f"{self.__base_url[0]}{relative_url}"
+
         try:
             async with self.__session.get(url, timeout=REQUEST_TIMEOUT) as response:
+                # Setting cookie manually so it works with IP-addresses
+                # not using aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True)) 
+                # as we allow use of external ClientSession
+                self.__session.cookie_jar.update_cookies(response.cookies) # Manually set cookies
+
                 assert 400 > response.status  # response.ok
                 await response.text()
                 return response
@@ -77,6 +83,11 @@ class HttpClient:
             async with self.__session.post(
                 url, data=form_data, timeout=REQUEST_TIMEOUT
             ) as response:
+                # Setting cookie manually so it works with IP-addresses
+                # not using aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True))
+                # as we allow use of external ClientSession
+                self.__session.cookie_jar.update_cookies(response.cookies) # Manually set cookies
+
                 assert 400 > response.status  # response.ok
                 await response.text()
                 return response

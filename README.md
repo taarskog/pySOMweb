@@ -16,16 +16,17 @@ In all samples replace **\*\*\*\*** with your values.
 
 ```sh
 $ python main.py -h
-usage: main.py [-h] --udi UDI --username USERNAME --password PASSWORD --action {alive,auth,get_all,status,open,close,toggle} [--door DOOR_ID]
+usage: main.py [-h] (--udi UDI | --url URL) --username USERNAME --password PASSWORD --action {alive,auth,get_udi,get_all,status,open,close,toggle} [--door DOOR_ID]
 
 SOMweb Client.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  --udi UDI             SOMweb UID
+  --udi UDI             SOMweb UID (access through cloud service)
+  --url URL             SOMweb URL (direct local access or cloud)
   --username USERNAME   SOMweb username
   --password PASSWORD   SOMweb password
-  --action {alive,auth,get_all,status,open,close,toggle}
+  --action {alive,auth,get_udi,get_all,status,open,close,toggle}
                         SOMweb password
   --door DOOR_ID        Id of door to perform the following actions on: "status", "open", "close" or "toggle"
 ```
@@ -39,6 +40,27 @@ $ python main.py --udi ******** --username ******** --password ******** --action
 True
 Operation took 0 seconds
 ```
+
+Same using direct local access
+
+```sh
+$ python main.py --url http://192.168.10.10 --username ******** --password ******** --action alive
+True
+Operation took 0 seconds
+```
+Replace IP with your SOMweb device IP or FQDN.
+
+### UDI
+
+Get Device UDI
+
+```sh
+$ python main.py --url http://192.168.10.10 --username ******** --password ******** --action get_udi
+**********
+Operation took 1 seconds
+```
+Replace IP with your SOMweb device IP or FQDN.
+
 
 ### Authenticate
 
@@ -108,14 +130,26 @@ See models.py for class properties.
 
 ### Create client
 
+#### With UDI (aka connecting through cloud service)
 ```py
 somwebUDI = 1234567  # This is the SOMweb UDI. You can find it under device information
 username = "automation" # Your home automation user as configured in SOMweb
 password = "super_secret_password" # Your home automation user password
 
-client = SomwebClient(somwebUDI, username, password)
+client = SomwebClient.createUsingUdi(somwebUDI, username, password)
 # optionally with ClientSession from aiohttp.client:
-client = SomwebClient(somwebUDI, username, password, session)
+client = SomwebClient.createUsingUdi(somwebUDI, username, password, session)
+```
+
+#### With IP or FQDN (aka connecting directly)
+```py
+somwebUri = http://192.168.10.10  # This is the SOMweb device IP or FQDN on the local network (could also be the FQDN to the cloud service).
+username = "automation" # Your home automation user as configured in SOMweb
+password = "super_secret_password" # Your home automation user password
+
+client = SomwebClient(somwebUri, username, password)
+# optionally with ClientSession from aiohttp.client:
+client = SomwebClient(somwebUri, username, password, session)
 ```
 
 ### Alive
@@ -138,6 +172,14 @@ if auth.success:
     ...
 else
     ...
+```
+
+### UDI
+
+```py
+# The SOMweb device UDI
+udi: str = client.udi
+
 ```
 
 ### Get Doors

@@ -16,6 +16,7 @@ async def execute(args: argparse.Namespace):
         switcher = {
             "alive": check_alive,
             "auth": authenticate,
+            "get_udi": get_udi,
             "get_all": get_all,
             "status": door_status,
             "open": door_open,
@@ -31,6 +32,13 @@ async def execute(args: argparse.Namespace):
 
     async def authenticate(client: SomwebClient, door_id: int = None):
         return await client.authenticate()
+
+    async def get_udi(client: SomwebClient, door_id: int = None):
+        auth = await client.authenticate()
+        if auth.success:
+            return client.udi
+        else:
+            return "Authentication failed"
 
     async def get_all(client: SomwebClient, door_id: int = None):
         auth = await client.authenticate()
@@ -77,16 +85,24 @@ async def execute(args: argparse.Namespace):
         else:
             return "Authentication failed"
 
-    async with SomwebClient(args.udi, args.username, args.password) as client:
+    if args.url:
+        somweb_client = SomwebClient(args.url, args.username, args.password)
+    elif args.udi:
+        somweb_client = SomwebClient.createUsingUdi(args.udi, args.username, args.password)
+
+    async with somweb_client as client:
         func = action_to_func(args.action)
         print(await func(client, args.door_id))
-
 
 # pylint: enable=unused-argument
 
 # pylint: disable=line-too-long
 parser = argparse.ArgumentParser(description="SOMweb Client.")
-parser.add_argument("--udi", dest="udi", required=True, type=str, help="SOMweb UID")
+
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument("--udi", dest="udi", type=str, help="SOMweb UID (access through cloud service)")
+group.add_argument("--url", dest="url", type=str, help="SOMweb URL (direct local access)")
+
 parser.add_argument(
     "--username", dest="username", required=True, type=str, help="SOMweb username"
 )
@@ -97,7 +113,7 @@ parser.add_argument(
     "--action",
     dest="action",
     required=True,
-    choices=["alive", "auth", "get_all", "status", "open", "close", "toggle"],
+    choices=["alive", "auth", "get_udi", "get_all", "status", "open", "close", "toggle"],
     help="SOMweb password",
 )
 parser.add_argument(
@@ -109,9 +125,14 @@ parser.add_argument(
 )
 # pylint: enable=line-too-long
 
+cmd_args = parser.parse_args()
+
+if cmd_args.action in ["status", "open", "close", "toggle"] and cmd_args.door_id is None:
+    parser.error("--door is required when --action is 'status', 'open', 'close', or 'toggle'")
+
 loop = asyncio.new_event_loop()
 start = time.perf_counter_ns()
-loop.run_until_complete(execute(parser.parse_args()))
+loop.run_until_complete(execute(cmd_args))
 end = time.perf_counter_ns()
 
 duration_ms = round((end - start) / 1000000)

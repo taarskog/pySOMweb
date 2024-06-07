@@ -1,4 +1,4 @@
 """ SOMweb Client """
-VERSION = (1, 1, 3)
+VERSION = (1, 2, 1)
 
 __version__ = ".".join(map(str, VERSION))

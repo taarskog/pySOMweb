@@ -38,7 +38,7 @@ CLASSIFIERS = [
     "Intended Audience :: Developers",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.10",
     "Operating System :: OS Independent",
     "Topic :: Home Automation",
     "Topic :: Software Development :: Libraries :: Python Modules",
