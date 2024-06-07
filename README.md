@@ -237,7 +237,19 @@ await client.wait_for_door_state(door_id, DoorStatusType.OPEN)
 
 ## Build
 
+Ensure Twine is installed before trying to upload: `pipenv install twine --dev` 
+
+
+```sh
 python setup.py bdist_wheel sdist
 
 pipenv shell
 python setup.py upload
+```
+
+Note. When uploading to pypi  you use an API token so the username and pwd are as follows:
+
+```yml
+Username: __token__
+Password: pypi-<yourtoken>
+```
