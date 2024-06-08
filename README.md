@@ -132,7 +132,7 @@ See models.py for class properties.
 
 #### With UDI (aka connecting through cloud service)
 ```py
-somwebUDI = 1234567  # This is the SOMweb UDI. You can find it under device information
+somwebUDI = "1234567"  # This is the SOMweb UDI. You can find it under device information
 username = "automation" # Your home automation user as configured in SOMweb
 password = "super_secret_password" # Your home automation user password
 

@@ -78,7 +78,7 @@ class SomwebClient:
     @classmethod
     def createUsingUdi(
         cls,
-        somweb_udi: int,
+        somweb_udi: str,
         username: str,
         password: str,
         session: ClientSession = None,
@@ -130,7 +130,7 @@ class SomwebClient:
         return self.__http_client is None or self.__http_client.closed
 
     @property
-    def udi(self) -> int:
+    def udi(self) -> str:
         """SOMweb UDI.
 
         A readonly property.
