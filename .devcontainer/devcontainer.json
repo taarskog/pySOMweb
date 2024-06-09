@@ -21,7 +21,7 @@
 			"python.defaultInterpreterPath": "/usr/local/bin/python",
 			"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
 			"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
-			"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+			"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf"
 		},
 
 		"vscode": {
@@ -36,7 +36,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "pip3 install --user -r requirements.txt",
+	"postCreateCommand": "pip3 install --user -r requirements.txt",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
