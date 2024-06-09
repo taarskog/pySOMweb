@@ -40,7 +40,13 @@ class Door(NamedTuple):
     name: str
 
 
-# class DoorStatus:
-#     def __init__(self, id: int, status: DoorStatusType):
-#         self.id = id
-#         self.status = status
+class DeviceInfo(NamedTuple):
+    """Device information"""
+
+    remote_access_enabled: bool
+    firmware_version: str
+    ip_address: str
+    wifi_signal_quality: int
+    wifi_signal_level: int
+    wifi_signal_unit: int
+    time_zone: str

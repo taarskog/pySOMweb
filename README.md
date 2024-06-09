@@ -16,18 +16,18 @@ In all samples replace **\*\*\*\*** with your values.
 
 ```sh
 $ python main.py -h
-usage: main.py [-h] (--udi UDI | --url URL) --username USERNAME --password PASSWORD --action {alive,auth,get_udi,get_all,status,open,close,toggle} [--door DOOR_ID]
+usage: main.py [-h] (--udi UDI | --url URL) --username USERNAME --password PASSWORD --action {alive,auth,is_admin,update_available,device_info,get_udi,get_all,status,open,close,toggle} [--door DOOR_ID]
 
 SOMweb Client.
 
 options:
   -h, --help            show this help message and exit
   --udi UDI             SOMweb UID (access through cloud service)
-  --url URL             SOMweb URL (direct local access or cloud)
+  --url URL             SOMweb URL (direct local access)
   --username USERNAME   SOMweb username
   --password PASSWORD   SOMweb password
-  --action {alive,auth,get_udi,get_all,status,open,close,toggle}
-                        SOMweb password
+  --action {alive,auth,is_admin,update_available,device_info,get_udi,get_all,status,open,close,toggle}
+                        Action to take
   --door DOOR_ID        Id of door to perform the following actions on: "status", "open", "close" or "toggle"
 ```
 
@@ -47,6 +47,33 @@ Same using direct local access
 $ python main.py --url http://192.168.10.10 --username ******** --password ******** --action alive
 True
 Operation took 0 seconds
+```
+Replace IP with your SOMweb device IP or FQDN.
+
+### Is Admninistrator
+
+```sh
+$ python main.py --url http://192.168.10.10 --username ******** --password ******** --action is_admin
+True
+Operation took 1 seconds
+```
+Replace IP with your SOMweb device IP or FQDN.
+
+### Firmware Update Available
+
+```sh
+$ python main.py --url http://192.168.10.10 --username ******** --password ******** --action update_available
+False
+Operation took 1 seconds
+```
+Replace IP with your SOMweb device IP or FQDN.
+
+### Device Info
+
+```sh
+$ python main.py --url http://192.168.10.10 --username ******** --password ******** --action device_info
+DeviceInfo(remote_access_enabled=True, firmware_version='2.8.3', ip_address='192.168.10.10', wifi_signal_quality='4', wifi_signal_level='-58', wifi_signal_unit='dBm', time_zone='Europe/Oslo')
+Operation took 3 seconds
 ```
 Replace IP with your SOMweb device IP or FQDN.
 
@@ -172,6 +199,25 @@ if auth.success:
     ...
 else
     ...
+```
+
+### Admin
+
+```py
+is_admin: bool = client.is_admin
+
+```
+
+### Firmware Update Available
+
+```py
+update_available: bool = await client.async_update_available()
+```
+
+### Firmware Update Available
+
+```py
+device_info: DeviceInfo = await client.async_get_device_info()
 ```
 
 ### UDI

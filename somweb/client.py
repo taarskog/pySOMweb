@@ -5,6 +5,7 @@ The package is created as part of an extension to Home Assistant. There are no d
 references to Home Assistant, so you can use the package directly from python or integrate it with
 any other home automation system.
 """
+from re import Pattern
 import warnings
 import asyncio
 from logging import exception
@@ -18,11 +19,19 @@ from .const import (
     CHECK_DOOR_STATE_INTERVAL,
     DEFAULT_DOOR_STATE_CHANGE_TIMEOUT,
     LOGGER,
+    RE_FIRMWARE_VERSION,
+    RE_IP_ADDRESS,
+    RE_REMOTE_ACCESS,
+    RE_TIME_ZONE,
+    RE_USER_IS_ADMIN,
     RE_WEBTOKEN,
     RE_DOORS,
     RE_UDI,
+    RE_WIFI_SIGNAL,
     SOMWEB_ALIVE_URI,
     SOMWEB_AUTH_URI,
+    SOMWEB_CHECK_FOR_UPDATE_URI,
+    SOMWEB_DEVICE_INFO_URI,
     SOMWEB_DOOR_STATUS_URI,
     SOMWEB_TOGGLE_DOOR_STATUS_URI,
     SOMWEB_URI_TEMPLATE,
@@ -30,6 +39,7 @@ from .const import (
 from .models import (
     AuthResponse,
     Credentials,
+    DeviceInfo,
     Door,
     DoorActionType,
     DoorStatusType,
@@ -37,13 +47,19 @@ from .models import (
 
 def deprecated(func):
     def wrapper(*args, **kwargs):
-        warnings.warn(
+        warnings.warning(
             f"{func.__name__} is deprecated and will be removed in the future.",
             category=DeprecationWarning,
             stacklevel=2
         )
         return func(*args, **kwargs)
     return wrapper
+
+def get_value_using_regex(content: str, regex: Pattern, group_name: str) -> str:
+    """Get value using regex"""
+
+    match = regex.search(content)
+    return None if match is None else match.group(group_name)
 
 class SomwebClient:
     """
@@ -153,6 +169,18 @@ class SomwebClient:
         else:
             match = RE_UDI.search(self.__current_page_content)
             return None if match is None else match.group("udi")
+
+    @property
+    def is_admin(self) -> bool:
+        """Is user an administrator.
+
+        A readonly property.
+        """
+        if self.__current_page_content is None:
+            return None
+        else:
+            match = RE_USER_IS_ADMIN.search(self.__current_page_content)
+            return False if match is None else True
 
     @deprecated
     async def is_alive(self):
@@ -453,3 +481,58 @@ class SomwebClient:
         """Parse web token from SOMweb HTML"""
         match = RE_WEBTOKEN.search(html_content)
         return None if match is None else match.group("webtoken")
+
+    async def async_update_available(self) -> bool:
+        """Check if an update is available
+
+        Returns
+        -------
+        bool: True if an update is available
+        """
+        try:
+            response = await self.__http_client.async_get(SOMWEB_CHECK_FOR_UPDATE_URI)
+            if 200 != response.status:
+                LOGGER.error("Checking for update failed. Reason: %s", response.reason)
+                return False
+
+            result = await response.text()      # 0 = no internet connection, 1 = update available, 2 = system has the latest firmvare version
+            return "1" == result
+
+        # pylint: disable=broad-except
+        except Exception as ex:
+            LOGGER.exception("Checking for update failed", exc_info=ex)
+            return False
+
+    async def async_get_device_info(self) -> DeviceInfo:
+        """Get device info from SOMweb
+
+        Note that the admin rights are required
+
+        Returns
+        -------
+        dict: Device info
+        """
+        try:
+            if self.is_admin == False:
+                LOGGER.warning("Admin rights required to get device info")
+                return None
+
+            response = await self.__http_client.async_get(SOMWEB_DEVICE_INFO_URI)
+            if 200 != response.status:
+                LOGGER.warning("Getting device info failed. Reason: %s", response.reason)
+                return None
+
+            page_content = await response.text("utf-8")
+            
+            return DeviceInfo(
+                get_value_using_regex(page_content, RE_REMOTE_ACCESS, "remote_access") == "ENABLED",
+                get_value_using_regex(page_content, RE_FIRMWARE_VERSION, "firmware_version"),
+                get_value_using_regex(page_content, RE_IP_ADDRESS, "ip_address"),
+                get_value_using_regex(page_content, RE_WIFI_SIGNAL, "quality"),
+                get_value_using_regex(page_content, RE_WIFI_SIGNAL, "level"),
+                get_value_using_regex(page_content, RE_WIFI_SIGNAL, "unit"),
+                get_value_using_regex(page_content, RE_TIME_ZONE, "time_zone"),
+            )
+        except Exception as ex:
+            LOGGER.exception("Getting device info failed", exc_info=ex)
+            return None

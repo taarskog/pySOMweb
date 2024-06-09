@@ -16,6 +16,9 @@ async def execute(args: argparse.Namespace):
         switcher = {
             "alive": check_alive,
             "auth": authenticate,
+            "is_admin": is_admin,
+            "device_info": get_device_info,
+            "update_available": is_update_available,
             "get_udi": get_udi,
             "get_all": get_all,
             "status": door_status,
@@ -32,6 +35,27 @@ async def execute(args: argparse.Namespace):
 
     async def authenticate(client: SomwebClient, door_id: int = None):
         return await  client.async_authenticate()
+
+    async def is_admin(client: SomwebClient, door_id: int = None):
+        auth = await  client.async_authenticate()
+        if auth.success:
+            return client.is_admin
+        else:
+            return "Authentication failed"
+
+    async def is_update_available(client: SomwebClient, door_id: int = None):
+        auth = await client.async_authenticate()
+        if auth.success:
+            return await client.async_update_available()
+        else:
+            return "Authentication failed"
+
+    async def get_device_info(client: SomwebClient, door_id: int = None):
+        auth = await client.async_authenticate()
+        if auth.success:
+            return await client.async_get_device_info()
+        else:
+            return "Getting device info failed"
 
     async def get_udi(client: SomwebClient, door_id: int = None):
         auth = await  client.async_authenticate()
@@ -113,8 +137,8 @@ parser.add_argument(
     "--action",
     dest="action",
     required=True,
-    choices=["alive", "auth", "get_udi", "get_all", "status", "open", "close", "toggle"],
-    help="SOMweb password",
+    choices=["alive", "auth", "is_admin", "update_available", "device_info", "get_udi", "get_all", "status", "open", "close", "toggle"],
+    help="Action to take",
 )
 parser.add_argument(
     "--door",
