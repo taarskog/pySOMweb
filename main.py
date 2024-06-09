@@ -28,20 +28,20 @@ async def execute(args: argparse.Namespace):
 
     # pylint: disable=unused-argument
     async def check_alive(client: SomwebClient, door_id: int = None):
-        return await client.is_alive()
+        return await client.async_is_alive()
 
     async def authenticate(client: SomwebClient, door_id: int = None):
-        return await client.authenticate()
+        return await  client.async_authenticate()
 
     async def get_udi(client: SomwebClient, door_id: int = None):
-        auth = await client.authenticate()
+        auth = await  client.async_authenticate()
         if auth.success:
             return client.udi
         else:
             return "Authentication failed"
 
     async def get_all(client: SomwebClient, door_id: int = None):
-        auth = await client.authenticate()
+        auth = await  client.async_authenticate()
         if auth.success:
             return client.get_doors_from_page_content(auth.page_content)
         else:
@@ -49,39 +49,39 @@ async def execute(args: argparse.Namespace):
 
     async def door_status(client: SomwebClient, door_id: int = None):
         assert door_id is not None
-        auth = await client.authenticate()
+        auth = await  client.async_authenticate()
         if auth.success:
-            return await client.get_door_status(door_id)
+            return await client.async_get_door_status(door_id)
         else:
             return "Authentication failed"
 
     async def door_open(client: SomwebClient, door_id: int = None):
         assert door_id is not None
-        auth = await client.authenticate()
+        auth = await  client.async_authenticate()
         if auth.success:
-            if not await client.open_door(door_id):
+            if not await client.async_open_door(door_id):
                 return False
             else:
-                return await client.wait_for_door_state(door_id, DoorStatusType.OPEN)
+                return await client.async_wait_for_door_state(door_id, DoorStatusType.OPEN)
         else:
             return "Authentication failed"
 
     async def door_close(client: SomwebClient, door_id: int = None):
         assert door_id is not None
-        auth = await client.authenticate()
+        auth = await  client.async_authenticate()
         if auth.success:
-            if not await client.close_door(door_id):
+            if not await client.async_close_door(door_id):
                 return False
             else:
-                return await client.wait_for_door_state(door_id, DoorStatusType.CLOSED)
+                return await client.async_wait_for_door_state(door_id, DoorStatusType.CLOSED)
         else:
             return "Authentication failed"
 
     async def door_toggle(client: SomwebClient, door_id: int = None):
         assert door_id is not None
-        auth = await client.authenticate()
+        auth = await  client.async_authenticate()
         if auth.success:
-            return await client.toogle_door_position(door_id)
+            return await client.async_toogle_door_position(door_id)
         else:
             return "Authentication failed"
 
@@ -136,4 +136,4 @@ loop.run_until_complete(execute(cmd_args))
 end = time.perf_counter_ns()
 
 duration_ms = round((end - start) / 1000000)
-print(f"Operation took {duration_ms:,} ms (this includes time spent on logging in")
+print(f"Operation took {duration_ms:,} ms (this includes time spent on logging in)")

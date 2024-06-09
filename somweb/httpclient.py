@@ -38,9 +38,9 @@ class HttpClient:
     async def __aexit__(self, *excinfo):
         if self.__private_session:
             LOGGER.info("Closing my http session")
-            await self.close()
+            await self.async_close()
 
-    async def close(self) -> None:
+    async def async_close(self) -> None:
         """Close underlying session.
 
         Release all acquired resources.
@@ -58,7 +58,7 @@ class HttpClient:
         """
         return self.__session is None or self.__session.closed
 
-    async def get(self, relative_url: str) -> ClientResponse:
+    async def async_get(self, relative_url: str) -> ClientResponse:
         """SOMweb device available and responding"""
         url = f"{self.__base_url[0]}{relative_url}"
 
@@ -73,10 +73,10 @@ class HttpClient:
                 await response.text()
                 return response
         except Exception as ex:
-            LOGGER.exception("Not reachable %s", url, exc_info=ex)
+            #LOGGER.exception("Not reachable %s", url, exc_info=ex)
             raise
 
-    async def post(self, relative_url: str, form_data: Any = None) -> ClientResponse:
+    async def async_post(self, relative_url: str, form_data: Any = None) -> ClientResponse:
         """SOMweb device available and responding"""
         url = f"{self.__base_url[0]}{relative_url}"
         try:
@@ -92,5 +92,5 @@ class HttpClient:
                 await response.text()
                 return response
         except Exception as ex:
-            LOGGER.exception("POST to '%s' failed", url, exc_info=ex)
+            #LOGGER.exception("POST to '%s' failed", url, exc_info=ex)
             raise
