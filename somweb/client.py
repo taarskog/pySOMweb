@@ -47,7 +47,7 @@ from .models import (
 
 def deprecated(func):
     def wrapper(*args, **kwargs):
-        warnings.warning(
+        warnings.warn(
             f"{func.__name__} is deprecated and will be removed in the future.",
             category=DeprecationWarning,
             stacklevel=2
