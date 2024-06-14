@@ -9,7 +9,6 @@ import asyncio
 import warnings
 from logging import exception
 from re import Pattern
-from typing import list
 
 from aiohttp.client import ClientSession
 
@@ -388,7 +387,7 @@ class SomwebClient:
 
         """
         matches = RE_DOORS.finditer(page_content)
-        doors = list(map(lambda m: Door(int(m.group("id")), m.group("name")), matches))
+        doors = [Door(int(m.group("id")), m.group("name")) for m in matches]
         return doors
 
     @_deprecated

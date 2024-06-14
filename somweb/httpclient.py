@@ -1,6 +1,6 @@
 """HttpClient for the SOMweb lib."""
 from asyncio import AbstractEventLoop, get_event_loop
-from typing import Any, tuple
+import typing
 import aiohttp
 
 from aiohttp.client import ClientSession
@@ -89,7 +89,7 @@ class HttpClient:
             #LOGGER.exception("Not reachable %s", url, exc_info=ex)
             raise
 
-    async def async_post(self, relative_url: str, form_data: Any = None) -> ClientResponse:
+    async def async_post(self, relative_url: str, form_data: typing.Any = None) -> ClientResponse:
         """
         Asynchronously sends a POST request to the specified relative URL and returns the response.
 

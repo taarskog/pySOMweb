@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # This file inspired by https://github.com/navdeep-G/setup.py
 
 # Note: To use the 'upload' functionality of this file, you must:
 #   $ pipenv install twine --dev
 
-import io
 import os
 import sys
 from shutil import Error, rmtree
@@ -18,7 +16,7 @@ DESCRIPTION = "SOMweb client. Open/close Garage doors produced by SOMMER (base+/
 URL = "https://github.com/taarskog/pysomweb"
 EMAIL = "somweb@heiigjen.com"
 AUTHOR = "Trond Aarskog"
-REQUIRES_PYTHON = ">=3.6.0"
+REQUIRES_PYTHON = ">=3.11.0"
 VERSION = None  # Version taken from package
 LICENSE = "MIT"
 KEYWORDS = [
@@ -38,7 +36,7 @@ CLASSIFIERS = [
     "Intended Audience :: Developers",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
     "Topic :: Home Automation",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -62,7 +60,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 # Import the README and use it as the long-description.
 # Note: this will only work if 'README.md' is present in your MANIFEST.in file!
 try:
-    with io.open(os.path.join(here, "README.md"), encoding="utf-8") as f:
+    with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
         long_description = "\n" + f.read()
 except FileNotFoundError:
     long_description = DESCRIPTION
@@ -94,8 +92,8 @@ class UploadCommand(Command):
 
     @staticmethod
     def status(s):
-        """Prints things in bold."""
-        print("\033[1m{0}\033[0m".format(s))
+        """Print things in bold."""
+        print(f"\033[1m{s}\033[0m")
 
     def initialize_options(self):
         pass

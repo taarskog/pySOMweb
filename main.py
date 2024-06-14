@@ -1,4 +1,4 @@
-""" SOMweb CLI """
+"""SOMweb CLI."""
 import asyncio
 import argparse
 import time
@@ -10,7 +10,7 @@ locale.setlocale(locale.LC_ALL, "")
 
 
 async def execute(args: argparse.Namespace):
-    """Execute command line operation"""
+    """Execute command line operation."""
 
     def action_to_func(action_name: str):
         switcher = {
@@ -113,10 +113,12 @@ async def execute(args: argparse.Namespace):
         somweb_client = SomwebClient(args.url, args.username, args.password)
     elif args.udi:
         somweb_client = SomwebClient.createUsingUdi(args.udi, args.username, args.password)
+    else:
+        raise "No client!"
 
-    async with somweb_client as client:
+    async with somweb_client:
         func = action_to_func(args.action)
-        print(await func(client, args.door_id))
+        print(await func(somweb_client, args.door_id))  # noqa: T201
 
 # pylint: enable=unused-argument
 

@@ -1,16 +1,16 @@
 """Models for SOMweb Client."""
 from enum import Enum
-from typing import NamedTuple
+import typing
 
 
-class Credentials(NamedTuple):
+class Credentials(typing.NamedTuple):
     """SOMweb device credentials."""
 
     username: str
     password: str
 
 
-class AuthResponse(NamedTuple):
+class AuthResponse(typing.NamedTuple):
     """Result from an authentication request."""
 
     success: bool = False
@@ -33,14 +33,14 @@ class DoorActionType(Enum):
     OPEN = 1
 
 
-class Door(NamedTuple):
+class Door(typing.NamedTuple):
     """Door information."""
 
     id: int
     name: str
 
 
-class DeviceInfo(NamedTuple):
+class DeviceInfo(typing.NamedTuple):
     """Device information."""
 
     remote_access_enabled: bool
