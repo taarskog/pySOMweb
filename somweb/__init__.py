@@ -1,3 +1,3 @@
-""" SOMweb Client """
+"""SOMweb Client."""
 from .client import SomwebClient
-from .models import DoorStatusType, Door
+from .models import DoorStatusType, Door, DeviceInfo
