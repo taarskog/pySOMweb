@@ -27,7 +27,9 @@
 		"vscode": {
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
-				"ms-python.python"
+				"ms-python.python",
+				"charliermarsh.ruff",
+				"vivaxy.vscode-conventional-commits"
 			]
 		}
 	},
