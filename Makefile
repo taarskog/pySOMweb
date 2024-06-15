@@ -1,5 +1,5 @@
 init:
 	pip install -r requirements.txt
 
-test:
-	unittest tests
+# test:
+# 	unittest tests

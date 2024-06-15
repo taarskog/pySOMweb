@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "somweb"
+dynamic = ["version"]
+authors = [
+    {name = "Trond Aarskog", email = "somweb@heiigjen.com"},
+]
+description = "SOMweb client. Open/close Garage doors produced by SOMMER (base+/pro+/tiga/tiga+/barrier systems)"
+readme = "README.md"
+
+requires-python = ">=3.11"
+keywords = [
+    "sommer",
+    "SOMweb",
+    "garage door",
+    "home assistant",
+    "home automation",
+    "heiigjen",
+]
+
+classifiers = [
+    # Choose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Home Automation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    # If changing these remember to also update requirements.txt
+    "requests",
+    "aiohttp",
+]
+
+[project.urls]
+Homepage = "https://github.com/taarskog/pysomweb"
+#Documentation = "https://readthedocs.org"
+Repository = "https://github.com/taarskog/pySOMweb.git"
+Issues = "https://github.com/taarskog/pySOMweb/issues"
+#Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+
+[project.scripts]
+somweb = "main:main"
+
+
+[tool.setuptools.dynamic]
+version = {attr = "somweb.__version__.__version__"}

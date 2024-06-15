@@ -8,7 +8,7 @@
             "name": "Python Debugger: Current File with Arguments",
             "type": "debugpy",
             "request": "launch",
-            "program": "main.py",
+            "program": "src/somweb/main.py",
             "console": "integratedTerminal",
             "args": "${command:pickArgs}"
         }

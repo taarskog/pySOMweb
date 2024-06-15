@@ -8,7 +8,6 @@ from somweb import SomwebClient
 
 locale.setlocale(locale.LC_ALL, "")
 
-
 async def execute(args: argparse.Namespace):
     """Execute command line operation."""
 
@@ -122,44 +121,48 @@ async def execute(args: argparse.Namespace):
 
 # pylint: enable=unused-argument
 
-# pylint: disable=line-too-long
-parser = argparse.ArgumentParser(description="SOMweb Client.")
+def main():  # noqa: D103
+    # pylint: disable=line-too-long
+    parser = argparse.ArgumentParser(description="SOMweb Client.")
 
-group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument("--udi", dest="udi", type=str, help="SOMweb UID (access through cloud service)")
-group.add_argument("--url", dest="url", type=str, help="SOMweb URL (direct local access)")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--udi", dest="udi", type=str, help="SOMweb UID (access through cloud service)")
+    group.add_argument("--url", dest="url", type=str, help="SOMweb URL (direct local access)")
 
-parser.add_argument(
-    "--username", dest="username", required=True, type=str, help="SOMweb username"
-)
-parser.add_argument(
-    "--password", dest="password", required=True, type=str, help="SOMweb password"
-)
-parser.add_argument(
-    "--action",
-    dest="action",
-    required=True,
-    choices=["alive", "auth", "is_admin", "update_available", "device_info", "get_udi", "get_all", "status", "open", "close", "toggle"],
-    help="Action to take",
-)
-parser.add_argument(
-    "--door",
-    dest="door_id",
-    required=False,
-    type=int,
-    help='Id of door to perform the following actions on: "status", "open", "close" or "toggle"',
-)
-# pylint: enable=line-too-long
+    parser.add_argument(
+        "--username", dest="username", required=True, type=str, help="SOMweb username"
+    )
+    parser.add_argument(
+        "--password", dest="password", required=True, type=str, help="SOMweb password"
+    )
+    parser.add_argument(
+        "--action",
+        dest="action",
+        required=True,
+        choices=["alive", "auth", "is_admin", "update_available", "device_info", "get_udi", "get_all", "status", "open", "close", "toggle"],
+        help="Action to take",
+    )
+    parser.add_argument(
+        "--door",
+        dest="door_id",
+        required=False,
+        type=int,
+        help='Id of door to perform the following actions on: "status", "open", "close" or "toggle"',
+    )
+    # pylint: enable=line-too-long
 
-cmd_args = parser.parse_args()
+    cmd_args = parser.parse_args()
 
-if cmd_args.action in ["status", "open", "close", "toggle"] and cmd_args.door_id is None:
-    parser.error("--door is required when --action is 'status', 'open', 'close', or 'toggle'")
+    if cmd_args.action in ["status", "open", "close", "toggle"] and cmd_args.door_id is None:
+        parser.error("--door is required when --action is 'status', 'open', 'close', or 'toggle'")
 
-loop = asyncio.new_event_loop()
-start = time.perf_counter_ns()
-loop.run_until_complete(execute(cmd_args))
-end = time.perf_counter_ns()
+    loop = asyncio.new_event_loop()
+    start = time.perf_counter_ns()
+    loop.run_until_complete(execute(cmd_args))
+    end = time.perf_counter_ns()
 
-duration_ms = round((end - start) / 1000000)
-print(f"Operation took {duration_ms:,} ms (this includes time spent on logging in)")
+    duration_ms = round((end - start) / 1000000)
+    print(f"Operation took {duration_ms:,} ms (this includes time spent on logging in)")  # noqa: T201
+
+if __name__ == "__main__":
+    main()

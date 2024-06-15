@@ -15,7 +15,8 @@ In all samples replace **\*\*\*\*** with your values.
 ### Usage
 
 ```sh
-$ python main.py -h
+# If installed (or cd into src and do python main.py -h if testing during dev)
+$ somweb -h
 usage: main.py [-h] (--udi UDI | --url URL) --username USERNAME --password PASSWORD --action {alive,auth,is_admin,update_available,device_info,get_udi,get_all,status,open,close,toggle} [--door DOOR_ID]
 
 SOMweb Client.
@@ -283,14 +284,20 @@ await client.wait_for_door_state(door_id, DoorStatusType.OPEN)
 
 ## Build
 
-Ensure Twine is installed before trying to upload: `pipenv install twine --dev` 
-
 
 ```sh
-python setup.py bdist_wheel sdist
 
-pipenv shell
-python setup.py upload
+# Make sure you have the latest version of PyPA’s build installed:
+python3 -m pip install --upgrade build
+
+# Run this command from the same directory where pyproject.toml is located:
+python3 -m build
+
+#
+# Manual upload to Test PyPi (not preferred approach - use Github Workflow)
+#
+python3 -m pip install --upgrade twine
+python3 -m twine upload --repository testpypi dist/*
 ```
 
 Note. When uploading to pypi  you use an API token so the username and pwd are as follows:
@@ -298,4 +305,13 @@ Note. When uploading to pypi  you use an API token so the username and pwd are a
 ```yml
 Username: __token__
 Password: pypi-<yourtoken>
+```
+
+The above can be put in file $HOME/.pypirc looking like this:
+
+```sh
+[testpypi]
+  username = __token__
+  password = pypi-<yourtoken>
+
 ```
