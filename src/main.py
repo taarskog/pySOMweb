@@ -4,6 +4,7 @@ import argparse
 import time
 import locale
 from somweb.models import DoorStatusType
+from somweb.__version__ import __version__
 from somweb import SomwebClient
 
 locale.setlocale(locale.LC_ALL, "")
@@ -123,7 +124,7 @@ async def execute(args: argparse.Namespace):
 
 def main():  # noqa: D103
     # pylint: disable=line-too-long
-    parser = argparse.ArgumentParser(description="SOMweb Client.")
+    parser = argparse.ArgumentParser(description=f"SOMweb Client v{__version__}")
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--udi", dest="udi", type=str, help="SOMweb UID (access through cloud service)")
