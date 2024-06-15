@@ -144,6 +144,7 @@ class SomwebClient:
             SomwebClient: The current object.
 
         """
+        return self
 
     async def __aexit__(self, *excinfo):
         """
@@ -155,7 +156,17 @@ class SomwebClient:
         LOGGER.info("Closing http client")
         await self.__http_client.async_close()
 
+    @_deprecated
     async def close(self) -> None:
+        """
+        Close the client (deprecated).
+
+        Release all acquired resources such as the underlying http client.
+
+        """
+        await self.async_close()
+
+    async def async_close(self) -> None:
         """
         Close the client.
 
