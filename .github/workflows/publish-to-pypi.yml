@@ -98,14 +98,29 @@ jobs:
         inputs: >-
           ./dist/*.tar.gz
           ./dist/*.whl
+    - name: Determine if pre-release
+      id: prerelease
+      run: |
+        TAG="${{ github.ref_name }}"
+        if [[ "$TAG" =~ -?(a|alpha|b|beta|rc)[0-9]+$ ]]; then
+          echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          echo "Pre-release detected: $TAG"
+        else
+          echo "is_prerelease=false" >> $GITHUB_OUTPUT
+          echo "Stable release: $TAG"
+        fi
     - name: Create GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      run: >-
-        gh release create
-        '${{ github.ref_name }}'
-        --repo '${{ github.repository }}'
-        --notes ""
+      run: |
+        PRERELEASE_FLAG=""
+        if [[ "${{ steps.prerelease.outputs.is_prerelease }}" == "true" ]]; then
+          PRERELEASE_FLAG="--prerelease"
+        fi
+        gh release create '${{ github.ref_name }}' \
+          --repo '${{ github.repository }}' \
+          --notes "" \
+          $PRERELEASE_FLAG
     - name: Upload artifact signatures to GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
