@@ -20,6 +20,7 @@ async def execute(args: argparse.Namespace):
             "device_info": get_device_info,
             "update_available": is_update_available,
             "get_udi": get_udi,
+            "get_udi_no_auth": get_udi_no_auth,
             "get_all": get_all,
             "status": door_status,
             "open": door_open,
@@ -63,6 +64,9 @@ async def execute(args: argparse.Namespace):
             return client.udi
         else:
             return "Authentication failed"
+
+    async def get_udi_no_auth(client: SomwebClient, door_id: int = None):
+        return await client.async_get_udi()
 
     async def get_all(client: SomwebClient, door_id: int = None):
         auth = await  client.async_authenticate()
@@ -140,7 +144,7 @@ def main():  # noqa: D103
         "--action",
         dest="action",
         required=True,
-        choices=["alive", "auth", "is_admin", "update_available", "device_info", "get_udi", "get_all", "status", "open", "close", "toggle"],
+        choices=["alive", "auth", "is_admin", "update_available", "device_info", "get_udi", "get_udi_no_auth", "get_all", "status", "open", "close", "toggle"],
         help="Action to take",
     )
     parser.add_argument(

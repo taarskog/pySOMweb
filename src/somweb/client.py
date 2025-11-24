@@ -103,6 +103,7 @@ class SomwebClient:
         self.__http_client = HttpClient(url, session)
 
         self.__current_token = None
+        self.__current_page_content = None
 
     @classmethod
     def create_using_udi(
@@ -257,6 +258,35 @@ class SomwebClient:
         except Exception as ex:
             LOGGER.exception("SomWeb not reachable.", exc_info=ex)
             return False
+
+    async def async_get_udi(self) -> str:
+        """
+        Get UDI from fornt page or login page.
+
+        Returns
+        -------
+        str: SOMweb UDI
+
+        """
+        content = self.__current_page_content or (await self.async_get_login_page())
+        match = RE_UDI.search(content)
+        return None if match is None else match.group("udi")
+
+    async def async_get_login_page(self) -> str:
+        """
+        Get login page content.
+
+        Returns
+        -------
+        str: Login page content
+
+        """
+        response = await self.__http_client.async_get(SOMWEB_AUTH_URI)
+        if not response.status < 400:
+            LOGGER.error("Failed getting login page. Reason: %s", response.reason)
+            exception("Failed getting login page. Reason: %s", response.reason)
+
+        return await response.text()
 
     @_deprecated
     async def authenticate(self):
