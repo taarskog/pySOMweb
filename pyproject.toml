@@ -48,8 +48,7 @@ Issues = "https://github.com/taarskog/pySOMweb/issues"
 #Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 [project.scripts]
-somweb = "main:main"
-
+somweb = "pysomweb.main:main"
 
 [tool.setuptools.dynamic]
-version = {attr = "somweb.__version__.__version__"}
+version = {attr = "pysomweb.__version__.__version__"}

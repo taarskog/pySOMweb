@@ -3,9 +3,9 @@ import asyncio
 import argparse
 import time
 import locale
-from somweb.models import DoorStatusType
-from somweb.__version__ import __version__
-from somweb import SomwebClient
+from pysomweb.models import DoorStatusType
+from pysomweb.__version__ import __version__
+from pysomweb import SomwebClient
 
 locale.setlocale(locale.LC_ALL, "")
 
