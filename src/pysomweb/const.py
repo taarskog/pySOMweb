@@ -44,6 +44,11 @@ RE_USER_IS_ADMIN = re.compile(
 #
 # Regex for Device Info Page (requires user to be admin)
 #
+RE_IDENTIFIER = re.compile(
+    r'SOMweb Identifier:<\/div>\s*?<\/div>\s*?<div class=\".*?\">\s*<div class=\".*?\">(?P<identifier>.*?)<\/div>',
+    re.MULTILINE | re.U | re.I
+)
+
 RE_REMOTE_ACCESS = re.compile(
     r'Remote Access:<\/div>\s*?<\/div>\s*?<div class=\".*?\">\s*<div class=\".*?\">(?P<remote_access>.*?)<\/div>',
     re.MULTILINE | re.U | re.I
@@ -55,7 +60,7 @@ RE_FIRMWARE_VERSION = re.compile(
 )
 
 RE_IP_ADDRESS = re.compile(
-    r'IP Address:<\/div>\s*?<\/div>\s*?<div class=\".*?\">\s*?<div class=\".*?\">(?P<ip_address>.*?)<\/div>',
+    r'IP address:<\/div>\s*?<\/div>\s*?<div class=\".*?\">\s*?<div class=\".*?\">(?P<ip_address>.*?)\s*?<\/div>',
     re.MULTILINE | re.U | re.I
 )
 

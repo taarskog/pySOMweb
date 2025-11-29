@@ -43,10 +43,11 @@ class Door(typing.NamedTuple):
 class DeviceInfo(typing.NamedTuple):
     """Device information."""
 
+    identifier: str
     remote_access_enabled: bool
     firmware_version: str
     ip_address: str
     wifi_signal_quality: int
     wifi_signal_level: int
-    wifi_signal_unit: int
+    wifi_signal_unit: str
     time_zone: str

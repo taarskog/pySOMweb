@@ -18,6 +18,7 @@ from .const import (
     LOGGER,
     RE_DOORS,
     RE_FIRMWARE_VERSION,
+    RE_IDENTIFIER,
     RE_IP_ADDRESS,
     RE_REMOTE_ACCESS,
     RE_TIME_ZONE,
@@ -108,14 +109,14 @@ class SomwebClient:
     @classmethod
     def create_using_udi(
 
-        cls: "SomwebClient",
+        cls,
         somweb_udi: str,
         username: str,
         password: str,
         session: ClientSession = None,
     ) -> "SomwebClient":
         """
-        Hello there.
+        Construct the Somweb client in cloud mode.
 
         Parameters
         ----------
@@ -764,6 +765,7 @@ class SomwebClient:
             page_content = await response.text("utf-8")
 
             return DeviceInfo(
+                _get_value_using_regex(page_content, RE_IDENTIFIER, "identifier"),
                 _get_value_using_regex(page_content, RE_REMOTE_ACCESS, "remote_access") == "ENABLED",
                 _get_value_using_regex(page_content, RE_FIRMWARE_VERSION, "firmware_version"),
                 _get_value_using_regex(page_content, RE_IP_ADDRESS, "ip_address"),

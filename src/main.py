@@ -116,7 +116,7 @@ async def execute(args: argparse.Namespace):
     if args.url:
         somweb_client = SomwebClient(args.url, args.username, args.password)
     elif args.udi:
-        somweb_client = SomwebClient.createUsingUdi(args.udi, args.username, args.password)
+        somweb_client = SomwebClient.create_using_udi(args.udi, args.username, args.password)
     else:
         raise "No client!"
 
